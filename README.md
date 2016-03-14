@@ -14,7 +14,7 @@ npm install --save-dev lightweb-builder
 ### Simple examples:
 
 ```js
-var builder = require('lightweb-builder');
+var builder = require('lightweb-builder').default;
 
 gulp.task('default', function() {
     (new builder)
@@ -51,7 +51,7 @@ For use compilers please add one of this dependencies in your `package.json`:
 ### Compilers usage
 
 ```js
-var builder = require('lightweb-builder');
+var builder = require('lightweb-builder').default;
 
 gulp.task('default', function() {
     (new builder)
