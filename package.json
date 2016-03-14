@@ -1,5 +1,5 @@
 {
-    "name": "web-builder",
+    "name": "lightweb-builder",
     "version": "0.0.1",
     "description": "Lightweight compiler for web-based applications",
     "license": "MIT",

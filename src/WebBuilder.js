@@ -8,7 +8,7 @@ import sourcemaps from "gulp-sourcemaps";
 
 /**
  * @class Compiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 class Compiler {
     static TYPE_FILE = 'file';
@@ -98,7 +98,7 @@ class Compiler {
 
 /**
  * @class JsCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 class JsCompiler extends Compiler {
     /**
@@ -197,7 +197,7 @@ class JsCompiler extends Compiler {
 
 /**
  * @class CssCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 class CssCompiler extends Compiler {
     /**
@@ -276,7 +276,7 @@ class CssCompiler extends Compiler {
 
 /**
  * @class SassCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 class SassCompiler extends CssCompiler {
     /**
@@ -320,7 +320,7 @@ class SassCompiler extends CssCompiler {
 
 /**
  * @class ScssCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 class ScssCompiler extends SassCompiler {
     /**
@@ -346,7 +346,7 @@ class ScssCompiler extends SassCompiler {
 
 /**
  * @class LessCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 class LessCompiler extends CssCompiler {
     /**
@@ -390,7 +390,7 @@ class LessCompiler extends CssCompiler {
 
 /**
  * @class StylusCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 class StylusCompiler extends CssCompiler {
     /**
@@ -434,7 +434,7 @@ class StylusCompiler extends CssCompiler {
 
 /**
  * @class BabelCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 class BabelCompiler extends JsCompiler {
     /**
@@ -504,7 +504,7 @@ class BabelCompiler extends JsCompiler {
 
 /**
  * @class CoffeeCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 class CoffeeCompiler extends JsCompiler {
     /**
@@ -570,7 +570,7 @@ class CoffeeCompiler extends JsCompiler {
 
 /**
  * @class WebBuilder
- * @package WebBuilder
+ * @package lightweb-builder
  */
 export default class WebBuilder {
     /**

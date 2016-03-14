@@ -6,7 +6,7 @@ Lightweight compiler for web-based applications
 # Installation
 
 ```
-npm install --save-dev web-builder
+npm install --save-dev lightweb-builder
 ```
 
 # Usage
@@ -14,7 +14,7 @@ npm install --save-dev web-builder
 ### Simple examples:
 
 ```js
-var builder = require('web-builder');
+var builder = require('lightweb-builder');
 
 gulp.task('default', function() {
     (new builder)
@@ -51,7 +51,7 @@ For use compilers please add one of this dependencies in your `package.json`:
 ### Compilers usage
 
 ```js
-var builder = require('web-builder');
+var builder = require('lightweb-builder');
 
 gulp.task('default', function() {
     (new builder)
