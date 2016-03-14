@@ -44,7 +44,7 @@ For use compilers please add one of this dependencies in your `package.json`:
     "gulp-coffee": "2.3.*",             // CoffeeScript support
     "gulp-sass": "2.2.*",               // Scss & Sass support
     "gulp-less": "3.0.*",               // Less support
-    "gulp-stylus": "2.3.*,              // Stylus support
+    "gulp-stylus": "2.3.*               // Stylus support
 }
 ```
 
