@@ -1,5 +1,5 @@
-web-builder
-===========
+lightweb-builder
+======================
 
 Lightweight compiler for web-based applications
 
