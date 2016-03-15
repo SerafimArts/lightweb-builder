@@ -16,21 +16,9 @@ var _merge = require("merge2");
 
 var _merge2 = _interopRequireDefault(_merge);
 
-var _gulpGzip = require("gulp-gzip");
-
-var _gulpGzip2 = _interopRequireDefault(_gulpGzip);
-
 var _gulpDebug = require("gulp-debug");
 
 var _gulpDebug2 = _interopRequireDefault(_gulpDebug);
-
-var _gulpConcat = require("gulp-concat");
-
-var _gulpConcat2 = _interopRequireDefault(_gulpConcat);
-
-var _gulpSourcemaps = require("gulp-sourcemaps");
-
-var _gulpSourcemaps2 = _interopRequireDefault(_gulpSourcemaps);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -42,7 +30,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /**
  * @class Compiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 
 var Compiler = function () {
@@ -57,10 +45,17 @@ var Compiler = function () {
      * @private
      */
 
+
+    /**
+     * @type {WebBuilder}
+     * @private
+     */
+
     function Compiler(builder) {
         _classCallCheck(this, Compiler);
 
         this._builder = null;
+        this._syncBuilding = false;
         this._files = {};
         this._gulpPaths = [];
 
@@ -68,7 +63,8 @@ var Compiler = function () {
     }
 
     /**
-     * @returns {{}}
+     * @param enabled
+     * @returns {Compiler}
      */
 
 
@@ -79,12 +75,25 @@ var Compiler = function () {
 
 
     /**
-     * @type {WebBuilder}
+     * @type {boolean}
      * @private
      */
 
 
     _createClass(Compiler, [{
+        key: "syncBuilding",
+        value: function syncBuilding() {
+            var enabled = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+            this._syncBuilding = !!enabled;
+            return this;
+        }
+
+        /**
+         * @returns {boolean}
+         */
+
+    }, {
         key: "file",
 
 
@@ -140,7 +149,7 @@ var Compiler = function () {
 
         /**
          * @param gulp
-         * @param options
+         * @param {object} options
          * @returns {*}
          */
 
@@ -151,6 +160,29 @@ var Compiler = function () {
 
             return gulp;
         }
+
+        /**
+         * @param {string} name
+         * @param {string} pkg
+         * @param {string} version
+         * @returns {Error}
+         */
+
+    }, {
+        key: "compilerError",
+        value: function compilerError(name, pkg, version) {
+            return new Error(name + " compiler not defined. Please add {\"" + pkg + "\": \"" + version + "\"} in your package.json");
+        }
+    }, {
+        key: "synced",
+        get: function get() {
+            return this._syncBuilding;
+        }
+
+        /**
+         * @returns {{}}
+         */
+
     }, {
         key: "files",
         get: function get() {
@@ -163,7 +195,7 @@ var Compiler = function () {
 
 /**
  * @class JsCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 
 
@@ -210,8 +242,8 @@ var JsCompiler = function (_Compiler) {
         }
 
         /**
-         * @param text
-         * @returns {void|string|XML}
+         * @param {string} text
+         * @returns {string}
          * @private
          */
 
@@ -312,7 +344,7 @@ var JsCompiler = function (_Compiler) {
 
 /**
  * @class CssCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 
 
@@ -438,7 +470,7 @@ var CssCompiler = function (_Compiler2) {
 
 /**
  * @class SassCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 
 
@@ -500,7 +532,7 @@ var SassCompiler = function (_CssCompiler) {
             try {
                 return require('gulp-sass');
             } catch (e) {
-                throw new Error('Sass compiler not defined. Please add {"gulp-sass": "2.2.*"} in your package.json');
+                throw this.compilerError('Sass', 'gulp-sass', '2.2.*');
             }
         }
     }]);
@@ -510,7 +542,7 @@ var SassCompiler = function (_CssCompiler) {
 
 /**
  * @class ScssCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 
 
@@ -547,7 +579,7 @@ var ScssCompiler = function (_SassCompiler) {
             try {
                 return require('gulp-sass');
             } catch (e) {
-                throw new Error('Scss compiler not defined. Please add {"gulp-sass": "2.2.*"} in your package.json');
+                throw this.compilerError('Scss', 'gulp-sass', '2.2.*');
             }
         }
     }]);
@@ -557,7 +589,7 @@ var ScssCompiler = function (_SassCompiler) {
 
 /**
  * @class LessCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 
 
@@ -619,7 +651,7 @@ var LessCompiler = function (_CssCompiler2) {
             try {
                 return require('gulp-less');
             } catch (e) {
-                throw new Error('Less compiler not defined. Please add {"gulp-less": "3.0.*"} in your package.json');
+                throw this.compilerError('Less', 'gulp-less', '3.0.*');
             }
         }
     }]);
@@ -629,7 +661,7 @@ var LessCompiler = function (_CssCompiler2) {
 
 /**
  * @class StylusCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 
 
@@ -691,7 +723,7 @@ var StylusCompiler = function (_CssCompiler3) {
             try {
                 return require('gulp-stylus');
             } catch (e) {
-                throw new Error('Stylus compiler not defined. Please add {"gulp-stylus": "2.3.*"} in your package.json');
+                throw this.compilerError('Stylus', 'gulp-stylus', '2.3.*');
             }
         }
     }]);
@@ -701,7 +733,7 @@ var StylusCompiler = function (_CssCompiler3) {
 
 /**
  * @class BabelCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 
 
@@ -806,7 +838,7 @@ var BabelCompiler = function (_JsCompiler) {
             try {
                 return require('gulp-babel');
             } catch (e) {
-                throw new Error('Babel compiler not defined. Please add {"gulp-babel": "6.1.*"} in your package.json');
+                throw this.compilerError('Babel', 'gulp-babel', '6.1.*');
             }
         }
     }]);
@@ -816,7 +848,7 @@ var BabelCompiler = function (_JsCompiler) {
 
 /**
  * @class CoffeeCompiler
- * @package WebBuilder
+ * @package lightweb-builder
  */
 
 
@@ -912,7 +944,7 @@ var CoffeeCompiler = function (_JsCompiler2) {
             try {
                 return require('gulp-coffee');
             } catch (e) {
-                throw new Error('CoffeeScript compiler not defined. Please add {"gulp-coffee": "2.3.*"} in your' + ' package.json');
+                throw this.compilerError('CoffeeScript', 'gulp-coffee', '2.3.*');
             }
         }
     }]);
@@ -922,7 +954,7 @@ var CoffeeCompiler = function (_JsCompiler2) {
 
 /**
  * @class WebBuilder
- * @package WebBuilder
+ * @package lightweb-builder
  */
 
 
@@ -935,6 +967,7 @@ var WebBuilder = function () {
         this._minify = false;
         this._minifyOptions = {};
         this._compress = false;
+        this._syncBuildingNext = false;
     }
     /**
      * @type {Array}
@@ -966,6 +999,12 @@ var WebBuilder = function () {
      */
 
 
+    /**
+     * @type {boolean}
+     * @private
+     */
+
+
     _createClass(WebBuilder, [{
         key: "babel",
 
@@ -977,12 +1016,7 @@ var WebBuilder = function () {
         value: function babel() {
             var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
 
-            var compiler = new BabelCompiler(this);
-            this._compilers.push(compiler);
-
-            callback(compiler);
-
-            return this;
+            return this._make(BabelCompiler, callback);
         }
 
         /**
@@ -995,12 +1029,9 @@ var WebBuilder = function () {
         value: function es6() {
             var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
 
-            var compiler = new BabelCompiler(this).preset('es2015');
-            this._compilers.push(compiler);
-
-            callback(compiler);
-
-            return this;
+            return this._make(BabelCompiler, callback, function (compiler) {
+                return compiler.preset('es2015');
+            });
         }
 
         /**
@@ -1013,13 +1044,9 @@ var WebBuilder = function () {
         value: function es7() {
             var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
 
-            var compiler = new BabelCompiler(this).preset('es2015', 'stage-0');
-
-            this._compilers.push(compiler);
-
-            callback(compiler);
-
-            return this;
+            return this._make(BabelCompiler, callback, function (compiler) {
+                return compiler.preset('es2015', 'stage-0');
+            });
         }
 
         /**
@@ -1032,13 +1059,7 @@ var WebBuilder = function () {
         value: function coffee() {
             var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
 
-            var compiler = new CoffeeCompiler(this);
-
-            this._compilers.push(compiler);
-
-            callback(compiler);
-
-            return this;
+            return this._make(CoffeeCompiler, callback);
         }
 
         /**
@@ -1051,13 +1072,7 @@ var WebBuilder = function () {
         value: function js() {
             var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
 
-            var compiler = new JsCompiler(this);
-
-            this._compilers.push(compiler);
-
-            callback(compiler);
-
-            return this;
+            return this._make(JsCompiler, callback);
         }
 
         /**
@@ -1070,13 +1085,7 @@ var WebBuilder = function () {
         value: function sass() {
             var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
 
-            var compiler = new SassCompiler(this);
-
-            this._compilers.push(compiler);
-
-            callback(compiler);
-
-            return this;
+            return this._make(SassCompiler, callback);
         }
 
         /**
@@ -1089,13 +1098,7 @@ var WebBuilder = function () {
         value: function scss() {
             var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
 
-            var compiler = new ScssCompiler(this);
-
-            this._compilers.push(compiler);
-
-            callback(compiler);
-
-            return this;
+            return this._make(ScssCompiler, callback);
         }
 
         /**
@@ -1108,13 +1111,7 @@ var WebBuilder = function () {
         value: function less() {
             var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
 
-            var compiler = new LessCompiler(this);
-
-            this._compilers.push(compiler);
-
-            callback(compiler);
-
-            return this;
+            return this._make(LessCompiler, callback);
         }
 
         /**
@@ -1127,13 +1124,7 @@ var WebBuilder = function () {
         value: function stylus() {
             var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
 
-            var compiler = new StylusCompiler(this);
-
-            this._compilers.push(compiler);
-
-            callback(compiler);
-
-            return this;
+            return this._make(StylusCompiler, callback);
         }
 
         /**
@@ -1146,7 +1137,42 @@ var WebBuilder = function () {
         value: function css() {
             var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
 
-            var compiler = new CssCompiler(this);
+            return this._make(CssCompiler, callback);
+        }
+
+        /**
+         * @param {Function} compilerClass
+         * @param {Function|string} callback
+         * @param {Function|null} before
+         * @returns {WebBuilder}
+         * @private
+         */
+
+    }, {
+        key: "_make",
+        value: function _make(compilerClass) {
+            var callback = arguments.length <= 1 || arguments[1] === undefined ? function () {} : arguments[1];
+            var before = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+
+            var compiler = new compilerClass(this);
+
+            if (this._syncBuildingNext) {
+                compiler.syncBuilding(true);
+                this._syncBuildingNext = false;
+            }
+
+            if (typeof callback === 'string') {
+                (function () {
+                    var file = callback;
+                    callback = function callback(compiler) {
+                        return compiler.file(file);
+                    };
+                })();
+            }
+
+            if (before) {
+                compiler = before(compiler);
+            }
 
             this._compilers.push(compiler);
 
@@ -1162,7 +1188,7 @@ var WebBuilder = function () {
     }, {
         key: "withCommonJs",
         value: function withCommonJs() {
-            return this.js(function (compiler) {
+            return this.then.js(function (compiler) {
                 compiler.file(require.resolve('commonjs-require/commonjs-require'));
             });
         }
@@ -1174,7 +1200,7 @@ var WebBuilder = function () {
     }, {
         key: "withPolyfill",
         value: function withPolyfill() {
-            return this.js(function (compiler) {
+            return this.then.js(function (compiler) {
                 compiler.file(require.resolve('babel-polyfill/dist/polyfill'));
             });
         }
@@ -1234,20 +1260,32 @@ var WebBuilder = function () {
         value: function build() {
             var output = arguments.length <= 0 || arguments[0] === undefined ? './compiled' : arguments[0];
 
-            var streams = [];
-
             if (this._compilers.length === 0) {
                 throw new Error('Building error. Empty sources list');
             }
 
+            var sourcemaps = require('gulp-sourcemaps');
+            var concat = require('gulp-concat');
+            var gzip = require('gulp-gzip');
+
+            var streams = [];
+            var asyncStreams = [];
+
             for (var i = 0; i < this._compilers.length; i++) {
-                streams.push(this._compilers[i].createStream());
+                var compiler = this._compilers[i];
+                var compilerStream = compiler.createStream();
+
+                if (compiler.synced) {
+                    streams.push(compilerStream);
+                } else {
+                    asyncStreams.push(compilerStream);
+                }
             }
 
-            var stream = (0, _merge2.default)(streams);
+            var stream = _merge2.default.apply(undefined, streams.concat([asyncStreams]));
 
             if (this._sourceMaps) {
-                stream = stream.pipe(_gulpSourcemaps2.default.init());
+                stream = stream.pipe(sourcemaps.init());
             }
 
             var parts = output.toString().split('/');
@@ -1257,21 +1295,38 @@ var WebBuilder = function () {
                 throw new Error('Invalid output path ' + output);
             }
 
-            stream = stream.pipe((0, _gulpConcat2.default)(fileName));
+            stream = stream.pipe(concat(fileName));
 
             if (this._minify) {
                 stream = this._compilers[0].minify(stream, this._minifyOptions);
             }
 
             if (this._sourceMaps) {
-                stream = stream.pipe(_gulpSourcemaps2.default.write('.'));
+                stream = stream.pipe(sourcemaps.write('.'));
             }
 
             if (this._compress) {
-                stream.pipe((0, _gulpConcat2.default)(fileName)).pipe((0, _gulpGzip2.default)()).pipe(_gulp2.default.dest(dist));
+                stream.pipe(concat(fileName)).pipe(gzip()).pipe(_gulp2.default.dest(dist));
             }
 
             return stream.pipe(_gulp2.default.dest(dist));
+        }
+    }, {
+        key: "then",
+
+
+        /**
+         * @returns {WebBuilder}
+         */
+        get: function get() {
+            this._syncBuildingNext = true;
+
+            if (this._compilers.length > 0) {
+                var lastCompiler = this._compilers[this._compilers.length - 1];
+                lastCompiler.syncBuilding(true);
+            }
+
+            return this;
         }
     }]);
 

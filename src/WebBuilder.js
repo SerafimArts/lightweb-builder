@@ -1,9 +1,8 @@
+"use strict";
+
 import gulp from "gulp";
 import merge from "merge2";
-import gzip from "gulp-gzip";
 import debug from "gulp-debug";
-import concat from "gulp-concat";
-import sourcemaps from "gulp-sourcemaps";
 
 
 /**
@@ -19,6 +18,12 @@ class Compiler {
      * @private
      */
     _builder = null;
+
+    /**
+     * @type {boolean}
+     * @private
+     */
+    _syncBuilding = false;
 
     /**
      * @type {{}}
@@ -37,6 +42,22 @@ class Compiler {
      */
     constructor(builder) {
         this._builder = builder;
+    }
+
+    /**
+     * @param enabled
+     * @returns {Compiler}
+     */
+    syncBuilding(enabled = false) {
+        this._syncBuilding = !!enabled;
+        return this;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    get synced() {
+        return this._syncBuilding;
     }
 
     /**
@@ -88,11 +109,21 @@ class Compiler {
 
     /**
      * @param gulp
-     * @param options
+     * @param {object} options
      * @returns {*}
      */
     minify(gulp, options = {}) {
         return gulp;
+    }
+
+    /**
+     * @param {string} name
+     * @param {string} pkg
+     * @param {string} version
+     * @returns {Error}
+     */
+    compilerError(name, pkg, version) {
+        return new Error(`${name} compiler not defined. Please add {"${pkg}": "${version}"} in your package.json`);
     }
 }
 
@@ -135,8 +166,8 @@ class JsCompiler extends Compiler {
     }
 
     /**
-     * @param text
-     * @returns {void|string|XML}
+     * @param {string} text
+     * @returns {string}
      * @private
      */
     static _escapeRegexp(text) {
@@ -286,7 +317,7 @@ class SassCompiler extends CssCompiler {
         try {
             return require('gulp-sass');
         } catch (e) {
-            throw new Error('Sass compiler not defined. Please add {"gulp-sass": "2.2.*"} in your package.json');
+            throw this.compilerError('Sass', 'gulp-sass', '2.2.*');
         }
     }
 
@@ -330,7 +361,7 @@ class ScssCompiler extends SassCompiler {
         try {
             return require('gulp-sass');
         } catch (e) {
-            throw new Error('Scss compiler not defined. Please add {"gulp-sass": "2.2.*"} in your package.json');
+            throw this.compilerError('Scss', 'gulp-sass', '2.2.*');
         }
     }
 
@@ -356,7 +387,7 @@ class LessCompiler extends CssCompiler {
         try {
             return require('gulp-less');
         } catch (e) {
-            throw new Error('Less compiler not defined. Please add {"gulp-less": "3.0.*"} in your package.json');
+            throw this.compilerError('Less', 'gulp-less', '3.0.*');
         }
     }
 
@@ -400,7 +431,7 @@ class StylusCompiler extends CssCompiler {
         try {
             return require('gulp-stylus');
         } catch (e) {
-            throw new Error('Stylus compiler not defined. Please add {"gulp-stylus": "2.3.*"} in your package.json');
+            throw this.compilerError('Stylus', 'gulp-stylus', '2.3.*');
         }
     }
 
@@ -474,7 +505,7 @@ class BabelCompiler extends JsCompiler {
         try {
             return require('gulp-babel');
         } catch (e) {
-            throw new Error('Babel compiler not defined. Please add {"gulp-babel": "6.1.*"} in your package.json');
+            throw this.compilerError('Babel', 'gulp-babel', '6.1.*');
         }
     }
 
@@ -529,8 +560,7 @@ class CoffeeCompiler extends JsCompiler {
         try {
             return require('gulp-coffee');
         } catch (e) {
-            throw new Error('CoffeeScript compiler not defined. Please add {"gulp-coffee": "2.3.*"} in your' +
-                ' package.json');
+            throw this.compilerError('CoffeeScript', 'gulp-coffee', '2.3.*');
         }
     }
 
@@ -604,16 +634,31 @@ export default class WebBuilder {
     _compress = false;
 
     /**
+     * @type {boolean}
+     * @private
+     */
+    _syncBuildingNext = false;
+
+    /**
+     * @returns {WebBuilder}
+     */
+    get then() {
+        this._syncBuildingNext = true;
+
+        if (this._compilers.length > 0) {
+            var lastCompiler = this._compilers[this._compilers.length - 1];
+            lastCompiler.syncBuilding(true);
+        }
+        
+        return this;
+    }
+
+    /**
      * @param {Function} callback
      * @returns {WebBuilder}
      */
     babel(callback = function () {}) {
-        var compiler = new BabelCompiler(this);
-        this._compilers.push(compiler);
-
-        callback(compiler);
-
-        return this;
+        return this._make(BabelCompiler, callback);
     }
 
     /**
@@ -621,12 +666,9 @@ export default class WebBuilder {
      * @returns {WebBuilder}
      */
     es6(callback = function () {}) {
-        var compiler = (new BabelCompiler(this)).preset('es2015');
-        this._compilers.push(compiler);
-
-        callback(compiler);
-
-        return this;
+        return this._make(BabelCompiler, callback, (compiler) => {
+            return compiler.preset('es2015');
+        });
     }
 
     /**
@@ -634,13 +676,9 @@ export default class WebBuilder {
      * @returns {WebBuilder}
      */
     es7(callback = function () {}) {
-        var compiler = (new BabelCompiler(this)).preset('es2015', 'stage-0');
-
-        this._compilers.push(compiler);
-
-        callback(compiler);
-
-        return this;
+        return this._make(BabelCompiler, callback, (compiler) => {
+            return compiler.preset('es2015', 'stage-0');
+        });
     }
 
     /**
@@ -648,13 +686,7 @@ export default class WebBuilder {
      * @returns {WebBuilder}
      */
     coffee(callback = function () {}) {
-        var compiler = new CoffeeCompiler(this);
-
-        this._compilers.push(compiler);
-
-        callback(compiler);
-
-        return this;
+        return this._make(CoffeeCompiler, callback);
     }
 
     /**
@@ -662,13 +694,7 @@ export default class WebBuilder {
      * @returns {WebBuilder}
      */
     js(callback = function () {}) {
-        var compiler = new JsCompiler(this);
-
-        this._compilers.push(compiler);
-
-        callback(compiler);
-
-        return this;
+        return this._make(JsCompiler, callback);
     }
 
     /**
@@ -676,13 +702,7 @@ export default class WebBuilder {
      * @returns {WebBuilder}
      */
     sass(callback = function () {}) {
-        var compiler = new SassCompiler(this);
-
-        this._compilers.push(compiler);
-
-        callback(compiler);
-
-        return this;
+        return this._make(SassCompiler, callback);
     }
 
     /**
@@ -690,13 +710,7 @@ export default class WebBuilder {
      * @returns {WebBuilder}
      */
     scss(callback = function () {}) {
-        var compiler = new ScssCompiler(this);
-
-        this._compilers.push(compiler);
-
-        callback(compiler);
-
-        return this;
+        return this._make(ScssCompiler, callback);
     }
 
     /**
@@ -704,13 +718,7 @@ export default class WebBuilder {
      * @returns {WebBuilder}
      */
     less(callback = function () {}) {
-        var compiler = new LessCompiler(this);
-
-        this._compilers.push(compiler);
-
-        callback(compiler);
-
-        return this;
+        return this._make(LessCompiler, callback);
     }
 
     /**
@@ -718,13 +726,7 @@ export default class WebBuilder {
      * @returns {WebBuilder}
      */
     stylus(callback = function () {}) {
-        var compiler = new StylusCompiler(this);
-
-        this._compilers.push(compiler);
-
-        callback(compiler);
-
-        return this;
+        return this._make(StylusCompiler, callback);
     }
 
     /**
@@ -732,7 +734,34 @@ export default class WebBuilder {
      * @returns {WebBuilder}
      */
     css(callback = function () {}) {
-        var compiler = new CssCompiler(this);
+        return this._make(CssCompiler, callback);
+    }
+
+    /**
+     * @param {Function} compilerClass
+     * @param {Function|string} callback
+     * @param {Function|null} before
+     * @returns {WebBuilder}
+     * @private
+     */
+    _make(compilerClass, callback = function(){}, before = null) {
+        var compiler = new compilerClass(this);
+
+        if (this._syncBuildingNext) {
+            compiler.syncBuilding(true);
+            this._syncBuildingNext = false;
+        }
+
+        if (typeof callback === 'string') {
+            let file = callback;
+            callback = (compiler) => {
+                return compiler.file(file);
+            };
+        }
+
+        if (before) {
+            compiler = before(compiler);
+        }
 
         this._compilers.push(compiler);
 
@@ -745,7 +774,7 @@ export default class WebBuilder {
      * @returns {WebBuilder}
      */
     withCommonJs() {
-        return this.js(compiler => {
+        return this.then.js(compiler => {
             compiler.file(require.resolve('commonjs-require/commonjs-require'));
         });
     }
@@ -754,7 +783,7 @@ export default class WebBuilder {
      * @returns {WebBuilder}
      */
     withPolyfill() {
-        return this.js(compiler => {
+        return this.then.js(compiler => {
             compiler.file(require.resolve('babel-polyfill/dist/polyfill'));
         });
     }
@@ -793,17 +822,29 @@ export default class WebBuilder {
      * @returns {*}
      */
     build(output = './compiled') {
-        var streams = [];
-
         if (this._compilers.length === 0) {
             throw new Error('Building error. Empty sources list');
         }
 
+        var sourcemaps   = require('gulp-sourcemaps');
+        var concat       = require('gulp-concat');
+        var gzip         = require('gulp-gzip');
+
+        var streams      = [];
+        var asyncStreams = [];
+
         for (var i = 0; i < this._compilers.length; i++) {
-            streams.push(this._compilers[i].createStream());
+            var compiler = this._compilers[i];
+            var compilerStream = compiler.createStream();
+
+            if (compiler.synced) {
+                streams.push(compilerStream);
+            } else {
+                asyncStreams.push(compilerStream);
+            }
         }
 
-        var stream = merge(streams);
+        var stream  = merge(...streams, asyncStreams);
 
         if (this._sourceMaps) {
             stream = stream.pipe(sourcemaps.init());
@@ -834,5 +875,6 @@ export default class WebBuilder {
         }
 
         return stream.pipe(gulp.dest(dist));
+
     }
 }

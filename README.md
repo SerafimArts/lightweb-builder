@@ -19,14 +19,14 @@ var builder = require('lightweb-builder').default;
 gulp.task('default', function() {
     (new builder)
         .js(function(compiler) {
-            compiler.path('src/path/');
+            compiler
+                .path('src/path/')
+                .file('src/vendor/jquery.js');
         })
         .build('./public/path/filename.js');
         
     (new builder)
-        .css(function(compiler) {
-            compiler.file('src/source.css');
-        })
+        .css('src/source.css') // Shortcut for compiler.file('src/source.css');
         .build('./public/path/filename.css');
 });
 ```
@@ -125,4 +125,52 @@ gulp.task('default', function() {
             .file('src/Application.js');
     });
     // In your browser: `var Application = require('App/Application');`
+```
+
+### Compilation order
+
+All files will be compiled in parallel, like this:
+
+```js
+(new builder)
+    .js('src/some.js')
+    .js('src/any.js')
+    .js('src/some2.js')
+    .js('src/any2.js')
+    .build('output.js');
+    
+/*
+ | Compilation order 
+ |  - random order
+ |
+ | some.js --->
+ |             |    
+ | any.js  --->
+ |             | ----> output.js
+ | some2.js -->
+ |             |
+ | any2.js --->
+*/
+```
+
+But you can set order of compilation with `.then` keyword:
+
+```js
+(new builder)
+    .js('src/some.js')
+    .js('src/some2.js')
+    .js('src/any.js')
+    .then.js('src/any2.js')
+    .build('output.js');
+    
+/*
+ | Compilation order: 
+ |  - any.js then any2.js and some.js + some2.js with random order
+ |
+ | any.js -> any2.js ->
+ |                     | ----> output.js
+ | some.js ----------->
+ |                     |
+ | some2.js ---------->
+*/
 ```
