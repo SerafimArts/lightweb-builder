@@ -1,6 +1,6 @@
 {
     "name": "lightweb-builder",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "Lightweight compiler for web-based applications",
     "license": "MIT",
     "repository": {

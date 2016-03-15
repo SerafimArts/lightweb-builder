@@ -67,16 +67,27 @@ gulp.task('default', function() {
 
 *Available compilers:*
 
-- `.babel(function(compiler)    { ... })` - Babel compiler
-- `.es6(function(compiler)      { ... })` - EcmaScript 2015 compiler (Babel with es2015 preset)
-- `.es7(function(compiler)      { ... })` - EcmaScript 2016 compiler (Babel with es2015 & stage-0 presets)
-- `.coffee(function(compiler)   { ... })` - CoffeeScript compiler
-- `.js(function(compiler)       { ... })` - JavaScript compiler
-- `.sass(function(compiler)     { ... })` - Sass compiler
-- `.scss(function(compiler)     { ... })` - Scss compiler
-- `.less(function(compiler)     { ... })` - Less compiler
-- `.stylus(function(compiler)   { ... })` - Stylus compiler
-- `.css(function(compiler)      { ... })` - Css compiler
+- `.babel([options])` - Babel compiler
+- `.es6([options])` - EcmaScript 2015 compiler (Babel with es2015 preset)
+- `.es7([options])` - EcmaScript 2016 compiler (Babel with es2015 & stage-0 presets)
+- `.coffee([options])` - CoffeeScript compiler
+- `.js([options])` - JavaScript compiler
+- `.sass([options])` - Sass compiler
+- `.scss([options])` - Scss compiler
+- `.less([options])` - Less compiler
+- `.stylus([options])` - Stylus compiler
+- `.css([options])` - Css compiler
+
+> `options` can be type of string or function. Like:
+```
+.css(function(compiler) {
+  compiler.file('css/layout.css');
+})
+
+// Alias for
+
+.css('css/layout.css')
+```
 
 
 ### Additional compiler options
