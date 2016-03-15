@@ -184,8 +184,8 @@ class JsCompiler extends Compiler {
     }
 
     /**
-     * @param path
-     * @param extension
+     * @param {string} path
+     * @param {string} extension
      * @returns {Compiler}
      */
     path(path, extension = '.js') {
@@ -599,6 +599,54 @@ class CoffeeCompiler extends JsCompiler {
 }
 
 /**
+ * @class TypeScriptCompiler
+ * @package lightweb-builder
+ */
+class TypeScriptCompiler extends JsCompiler {
+    /**
+     * @returns {*}
+     */
+    get compiler() {
+        try {
+            return require('gulp-typescript');
+        } catch (e) {
+            throw this.compilerError('TypeScriptCompiler', 'gulp-typescript', '2.12.*');
+        }
+    }
+
+    /**
+     * @param {string} path
+     * @param {string} extension
+     * @returns {Compiler}
+     */
+    path(path, extension = '.ts') {
+        return super.path(path, extension);
+    }
+
+    /**
+     * @param wrapStream
+     * @returns {*}
+     */
+    createStream(wrapStream = null) {
+        var build = (stream) => {
+            var args = {
+
+            };
+
+            return stream.pipe(this.compiler(args));
+        };
+
+        return super.createStream(stream => {
+            stream = build(stream);
+            if (wrapStream) {
+                stream = wrapStream(stream, this);
+            }
+            return stream;
+        });
+    }
+}
+
+/**
  * @class WebBuilder
  * @package lightweb-builder
  */
@@ -701,6 +749,14 @@ export default class WebBuilder {
      * @param {Function} callback
      * @returns {WebBuilder}
      */
+    ts(callback = function () {}) {
+        return this._make(TypeScriptCompiler, callback);
+    }
+
+    /**
+     * @param {Function} callback
+     * @returns {WebBuilder}
+     */
     sass(callback = function () {}) {
         return this._make(SassCompiler, callback);
     }
@@ -756,6 +812,13 @@ export default class WebBuilder {
             let file = callback;
             callback = (compiler) => {
                 return compiler.file(file);
+            };
+        } else if (callback instanceof Array) {
+            let files = callback;
+            callback = (compiler) => {
+                for (var i = 0; i < files.length; i++) {
+                    compiler.file(files[i]);
+                }
             };
         }
 

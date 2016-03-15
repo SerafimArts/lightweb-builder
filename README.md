@@ -44,7 +44,8 @@ For use compilers please add one of this dependencies in your `package.json`:
     "gulp-coffee": "2.3.*",             // CoffeeScript support
     "gulp-sass": "2.2.*",               // Scss & Sass support
     "gulp-less": "3.0.*",               // Less support
-    "gulp-stylus": "2.3.*               // Stylus support
+    "gulp-stylus": "2.3.*",             // Stylus support
+    "gulp-typescript": "2.12.*"         // TypeScript support
 }
 ```
 
@@ -72,21 +73,34 @@ gulp.task('default', function() {
 - `.es7([options])` - EcmaScript 2016 compiler (Babel with es2015 & stage-0 presets)
 - `.coffee([options])` - CoffeeScript compiler
 - `.js([options])` - JavaScript compiler
+- `.ts([options])` - TypeScript compiler
 - `.sass([options])` - Sass compiler
 - `.scss([options])` - Scss compiler
 - `.less([options])` - Less compiler
 - `.stylus([options])` - Stylus compiler
 - `.css([options])` - Css compiler
 
-> `options` can be type of string or function. Like:
+> `options` can be type of String, Array of strings or callback Function. Like:
 ```
-.css(function(compiler) {
-  compiler.file('css/layout.css');
-})
+(new builder)
+
+    .css(function(compiler) {
+      compiler.file('css/layout.css').file('css/dependency.css');
+    })
 
 // Alias for
 
-.css('css/layout.css')
+(new builder)
+
+    .css('css/layout.css')
+    .css('css/dependency.css')
+
+// Or 
+
+(new builder)
+
+    .css(['css/layout.css', 'css/dependency.css'])
+
 ```
 
 
