@@ -481,6 +481,12 @@ class BabelCompiler extends JsCompiler {
     _plugins = [];
 
     /**
+     * @type {{}}
+     * @private
+     */
+    _options = {};
+
+    /**
      * @param presets
      * @returns {BabelCompiler}
      */
@@ -495,6 +501,11 @@ class BabelCompiler extends JsCompiler {
      */
     plugin(...plugins) {
         this._plugins = this._plugins.concat(plugins);
+        return this;
+    }
+
+    options (args = {}) {
+        this._options = args;
         return this;
     }
 
@@ -519,6 +530,10 @@ class BabelCompiler extends JsCompiler {
                 presets: this._presets,
                 plugins: this._plugins
             };
+
+            Object.keys(this._options).forEach(key => {
+                args[key] = this._options[key];
+            });
 
             return stream.pipe(this.compiler(args));
         };
@@ -795,7 +810,7 @@ export default class WebBuilder {
 
     /**
      * @param {Function} compilerClass
-     * @param {Function|string} callback
+     * @param {Function|string|Array} callback
      * @param {Function|null} before
      * @returns {WebBuilder}
      * @private
@@ -813,6 +828,7 @@ export default class WebBuilder {
             callback = (compiler) => {
                 return compiler.file(file);
             };
+
         } else if (callback instanceof Array) {
             let files = callback;
             callback = (compiler) => {

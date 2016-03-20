@@ -263,8 +263,8 @@ var JsCompiler = function (_Compiler) {
         }
 
         /**
-         * @param path
-         * @param extension
+         * @param {string} path
+         * @param {string} extension
          * @returns {Compiler}
          */
 
@@ -751,7 +751,7 @@ var BabelCompiler = function (_JsCompiler) {
             args[_key3] = arguments[_key3];
         }
 
-        return _ret3 = (_temp3 = (_this12 = _possibleConstructorReturn(this, (_Object$getPrototypeO3 = Object.getPrototypeOf(BabelCompiler)).call.apply(_Object$getPrototypeO3, [this].concat(args))), _this12), _this12._presets = [], _this12._plugins = [], _temp3), _possibleConstructorReturn(_this12, _ret3);
+        return _ret3 = (_temp3 = (_this12 = _possibleConstructorReturn(this, (_Object$getPrototypeO3 = Object.getPrototypeOf(BabelCompiler)).call.apply(_Object$getPrototypeO3, [this].concat(args))), _this12), _this12._presets = [], _this12._plugins = [], _this12._options = {}, _temp3), _possibleConstructorReturn(_this12, _ret3);
     }
     /**
      * @type {Array}
@@ -761,6 +761,12 @@ var BabelCompiler = function (_JsCompiler) {
 
     /**
      * @type {Array}
+     * @private
+     */
+
+
+    /**
+     * @type {{}}
      * @private
      */
 
@@ -797,6 +803,14 @@ var BabelCompiler = function (_JsCompiler) {
             this._plugins = this._plugins.concat(plugins);
             return this;
         }
+    }, {
+        key: "options",
+        value: function options() {
+            var args = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+            this._options = args;
+            return this;
+        }
 
         /**
          * @returns {*}
@@ -820,6 +834,10 @@ var BabelCompiler = function (_JsCompiler) {
                     presets: _this13._presets,
                     plugins: _this13._plugins
                 };
+
+                Object.keys(_this13._options).forEach(function (key) {
+                    args[key] = _this13._options[key];
+                });
 
                 return stream.pipe(_this13.compiler(args));
             };
@@ -953,6 +971,80 @@ var CoffeeCompiler = function (_JsCompiler2) {
 }(JsCompiler);
 
 /**
+ * @class TypeScriptCompiler
+ * @package lightweb-builder
+ */
+
+
+var TypeScriptCompiler = function (_JsCompiler3) {
+    _inherits(TypeScriptCompiler, _JsCompiler3);
+
+    function TypeScriptCompiler() {
+        _classCallCheck(this, TypeScriptCompiler);
+
+        return _possibleConstructorReturn(this, Object.getPrototypeOf(TypeScriptCompiler).apply(this, arguments));
+    }
+
+    _createClass(TypeScriptCompiler, [{
+        key: "path",
+
+
+        /**
+         * @param {string} path
+         * @param {string} extension
+         * @returns {Compiler}
+         */
+        value: function path(_path9) {
+            var extension = arguments.length <= 1 || arguments[1] === undefined ? '.ts' : arguments[1];
+
+            return _get(Object.getPrototypeOf(TypeScriptCompiler.prototype), "path", this).call(this, _path9, extension);
+        }
+
+        /**
+         * @param wrapStream
+         * @returns {*}
+         */
+
+    }, {
+        key: "createStream",
+        value: function createStream() {
+            var _this17 = this;
+
+            var wrapStream = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+            var build = function build(stream) {
+                var args = {};
+
+                return stream.pipe(_this17.compiler(args));
+            };
+
+            return _get(Object.getPrototypeOf(TypeScriptCompiler.prototype), "createStream", this).call(this, function (stream) {
+                stream = build(stream);
+                if (wrapStream) {
+                    stream = wrapStream(stream, _this17);
+                }
+                return stream;
+            });
+        }
+    }, {
+        key: "compiler",
+
+        /**
+         * @returns {*}
+         */
+        get: function get() {
+            try {
+                return require('gulp-typescript');
+            } catch (e) {
+                throw this.compilerError('TypeScriptCompiler', 'gulp-typescript', '2.12.*');
+            }
+        }
+    }]);
+
+    return TypeScriptCompiler;
+}(JsCompiler);
+
+/**
  * @class WebBuilder
  * @package lightweb-builder
  */
@@ -1081,6 +1173,19 @@ var WebBuilder = function () {
          */
 
     }, {
+        key: "ts",
+        value: function ts() {
+            var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
+
+            return this._make(TypeScriptCompiler, callback);
+        }
+
+        /**
+         * @param {Function} callback
+         * @returns {WebBuilder}
+         */
+
+    }, {
         key: "sass",
         value: function sass() {
             var callback = arguments.length <= 0 || arguments[0] === undefined ? function () {} : arguments[0];
@@ -1142,7 +1247,7 @@ var WebBuilder = function () {
 
         /**
          * @param {Function} compilerClass
-         * @param {Function|string} callback
+         * @param {Function|string|Array} callback
          * @param {Function|null} before
          * @returns {WebBuilder}
          * @private
@@ -1166,6 +1271,15 @@ var WebBuilder = function () {
                     var file = callback;
                     callback = function callback(compiler) {
                         return compiler.file(file);
+                    };
+                })();
+            } else if (callback instanceof Array) {
+                (function () {
+                    var files = callback;
+                    callback = function callback(compiler) {
+                        for (var i = 0; i < files.length; i++) {
+                            compiler.file(files[i]);
+                        }
                     };
                 })();
             }
