@@ -225,14 +225,14 @@ var JsCompiler = function (_Compiler) {
 
 
     _createClass(JsCompiler, [{
-        key: "package",
+        key: "namespace",
 
 
         /**
          * @param {string} name
          * @returns {JsCompiler}
          */
-        value: function _package(name) {
+        value: function namespace(name) {
             var lastChar = name[name.length - 1];
             if (lastChar !== '/') {
                 name += '/';
@@ -1448,3 +1448,4 @@ var WebBuilder = function () {
 }();
 
 exports.default = WebBuilder;
+//# sourceMappingURL=index.js.map

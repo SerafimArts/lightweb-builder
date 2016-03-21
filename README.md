@@ -136,7 +136,7 @@ gulp.task('default', function() {
 ```js
     .js(function(compiler) {
         compiler
-            .package('PackageName');
+            .namespace('PackageName');
             // Add CommonJs wrapping for all files in compiler scope
             // With prefix `PackageName`
     });
@@ -146,7 +146,7 @@ gulp.task('default', function() {
     .withCommonJs()
     .js(function(compiler) {
         compiler
-            .package('App')
+            .namespace('App')
             .file('src/Application.js');
     });
     // In your browser: `var Application = require('App/Application');`

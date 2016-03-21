@@ -156,7 +156,7 @@ class JsCompiler extends Compiler {
      * @param {string} name
      * @returns {JsCompiler}
      */
-    package(name) {
+    namespace(name) {
         var lastChar = name[name.length - 1];
         if (lastChar !== '/') {
             name += '/';
@@ -215,7 +215,6 @@ class JsCompiler extends Compiler {
                             path = path.replace(regexp, isFile ? item.split('/').pop() : '');
                         }
                     });
-
 
                     return this._package + path.replace(/\.[a-z0-9]+$/, '');
                 }
@@ -712,7 +711,7 @@ export default class WebBuilder {
             var lastCompiler = this._compilers[this._compilers.length - 1];
             lastCompiler.syncBuilding(true);
         }
-        
+
         return this;
     }
 
