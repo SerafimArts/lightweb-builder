@@ -305,7 +305,13 @@ var JsCompiler = function (_Compiler) {
                             }
                         });
 
-                        return _this2._package + path.replace(/\.[a-z0-9]+$/, '');
+                        var result = _this2._package + path.replace(/\.[a-z0-9]+$/, '');
+
+                        if (result[0] === '/') {
+                            return result.substr(1);
+                        }
+
+                        return result;
                     }
                 }));
             }
@@ -1448,4 +1454,3 @@ var WebBuilder = function () {
 }();
 
 exports.default = WebBuilder;
-//# sourceMappingURL=index.js.map

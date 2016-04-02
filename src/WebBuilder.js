@@ -216,7 +216,13 @@ class JsCompiler extends Compiler {
                         }
                     });
 
-                    return this._package + path.replace(/\.[a-z0-9]+$/, '');
+                    var result = this._package + path.replace(/\.[a-z0-9]+$/, '');
+
+                    if (result[0] === '/') {
+                        return result.substr(1);
+                    }
+
+                    return result;
                 }
             }));
         }
